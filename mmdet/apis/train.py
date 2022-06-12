@@ -6,10 +6,10 @@ import numpy as np
 import torch
 import torch.distributed as dist
 from mmcv.runner import (DistSamplerSeedHook, EpochBasedRunner,
-                         Fp16OptimizerHook, OptimizerHook, build_optimizer,
-                         build_runner, get_dist_info)
+                         Fp16OptimizerHook, OptimizerHook, build_runner,
+                         get_dist_info)
 
-from mmdet.core import DistEvalHook, EvalHook
+from mmdet.core import DistEvalHook, EvalHook, build_optimizer
 from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.utils import (build_ddp, build_dp, compat_cfg,
@@ -96,10 +96,10 @@ def auto_scale_lr(cfg, distributed, logger):
         num_gpus = len(cfg.gpu_ids)
 
     # calculate the batch size
-    batch_size = num_gpus * cfg.data.samples_per_gpu
-    logger.info(f'You are using {num_gpus} GPU(s) '
-                f'and {cfg.data.samples_per_gpu} samples per GPU. '
-                f'Total batch size is {batch_size}.')
+    samples_per_gpu = cfg.data.train_dataloader.samples_per_gpu
+    batch_size = num_gpus * samples_per_gpu
+    logger.info(f'Training with {num_gpus} GPU(s) with {samples_per_gpu} '
+                f'samples per GPU. The total batch size is {batch_size}.')
 
     if batch_size != base_batch_size:
         # scale LR with
