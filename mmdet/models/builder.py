@@ -66,8 +66,11 @@ def build_detector(cfg, train_cfg=None, test_cfg=None):
             mode=rfsearch_cfg.get('mode', 'train'),
             config=rfsearch_cfg.get('config', None),
             rfstructure_file=rfsearch_cfg.get('rfstructure_file', None),
+            kernel_file=rfsearch_cfg.get('kernel_file', None)
         )
+        if rfsearch_cfg.get('kernel_file', None) is not None:
+            rfsearch_warp.set_kernel(detector, rfsearch_warp.config, search_op='Conv2d')
         detector.init_weights()
         rfsearch_warp.model_init(detector)
-
+    
     return detector
